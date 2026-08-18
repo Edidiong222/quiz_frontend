@@ -366,7 +366,7 @@ function Landing() {
               <div className="flex items-center justify-between"><span className="font-bold">Live Test</span><Badge tone="amber">Medium</Badge></div>
               <p className="mt-8 text-2xl font-black">Which CSS utility centers a block horizontally?</p>
             </div>
-            <div className="space-y-3 p-5">{['Adds padding', 'Centers an element horizontally', 'Creates a flex container'].map((item, index) => <div key={item} className={clsx('rounded-xl border p-4 font-semibold', index === 1 ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200')}>{item}</div>)}</div>
+            <div className="space-y-3 p-5">{['align-items', 'justify-content', 'justify-items'].map((item, index) => <div key={item} className={clsx('rounded-xl border p-4 font-semibold', index === 1 ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200')}>{item}</div>)}</div>
           </Card>
         </div>
       </section>
