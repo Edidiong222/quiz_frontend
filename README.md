@@ -405,21 +405,6 @@ Backend documentation:
 
 The backend URL is currently present in the project's environment example and API client.
 
-## Screenshots
-
-Add screenshots of the application here.
-
-```text
-[ADD SCREENSHOT OF LANDING PAGE]
-
-[ADD SCREENSHOT OF DASHBOARD]
-
-[ADD SCREENSHOT OF QUIZ PAGE]
-
-[ADD SCREENSHOT OF RESULTS PAGE]
-
-[ADD SCREENSHOT OF ADMIN PAGE]
-```
 
 ## Development Notes
 
@@ -441,14 +426,12 @@ The following information is not explicitly defined in the repository and should
 
 ## License
 
-This project is licensed under the **[ADD LICENSE]** license.
+This project is licensed under the **MIT** license.
 
 See the `LICENSE` file for more information.
 
 ## Author
 
-**[ADD AUTHOR NAME]**
+**Edidiong Reuben**
 
-* GitHub: [ADD GITHUB PROFILE LINK]
-* Portfolio: [ADD PORTFOLIO LINK]
-* Email: [ADD CONTACT EMAIL]
+* GitHub: https://github.com/Edidiong222
