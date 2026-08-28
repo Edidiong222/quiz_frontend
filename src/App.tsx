@@ -36,7 +36,7 @@ import { adminApi } from './api/admin';
 import { tokenStore } from './api/client';
 import type { AnswerChoice, AttemptHistoryItem, AttemptReview, Difficulty, LeaderboardEntry, Question, Quiz, SubmitAnswer, User } from './types';
 
-type Tone = 'slate' | 'green' | 'amber' | 'rose' | 'violet';
+type Tone = 'slate' | 'green' | 'amber' | 'rose' | 'violet'|'transparent';
 type AdminQuestion = Question & { explanation?: string | null; answers: Array<AnswerChoice & { isCorrect: boolean }> };
 type AdminQuiz = Omit<Quiz, 'questions'> & { questions?: AdminQuestion[] };
 type ToastTone = 'success' | 'error';
@@ -202,8 +202,9 @@ function Badge({ children, tone = 'slate' }: { children: React.ReactNode; tone?:
     amber: 'bg-amber-100 text-amber-800',
     rose: 'bg-rose-100 text-rose-700',
     violet: 'bg-violet-100 text-violet-700',
+    transparent:"bg-transparent"
   };
-  return <span className={clsx('inline-flex rounded-full px-2.5 py-1 text-xs font-bold capitalize', tones[tone])}>{children}</span>;
+  return <span className={clsx('inline-flex rounded-full px-2.5 py-1 text-[5px] md:text-[8px] lg:text-xs font-bold capitalize', tones[tone])}>{children}</span>;
 }
 
 function ProgressBar({ value, tone = 'violet' }: { value: number; tone?: 'violet' | 'emerald' | 'amber' | 'rose' }) {
@@ -445,14 +446,79 @@ function Dashboard() {
   const rank = leaderboard.data?.find((entry) => entry.userId === user?.id)?.rank;
   return (
     <Shell>
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div><p className="text-sm font-bold uppercase tracking-[0.18em] text-violet-600">Dashboard</p><h1 className="mt-2 text-3xl font-black">Welcome back, {user?.name || 'tester'}</h1></div>
-        <div className="grid gap-4 md:grid-cols-4"><Stat label="Total quizzes taken" value={completed.length} icon={ListChecks} /><Stat label="Average score" value={pct(avg)} icon={BarChart3} /><Stat label="Best score" value={pct(best)} icon={Award} /><Stat label="Current rank" value={rank ? `#${rank}` : 'Unranked'} icon={Trophy} /></div>
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-          <Card><h2 className="text-xl font-black">Recommended Quizzes</h2><div className="mt-4 grid gap-4 md:grid-cols-3">{quizzes.loading ? [1, 2, 3].map((i) => <Skeleton key={i} className="h-40" />) : quizzes.data?.map((quiz) => <QuizMini key={quiz.id} quiz={quiz} />)}</div></Card>
-          <Card><h2 className="text-xl font-black">Leaderboard Preview</h2><div className="mt-4 space-y-3">{(leaderboard.data ?? []).slice(0, 5).map((entry) => <RankRow key={entry.userId} entry={entry} active={entry.userId === user?.id} />)}{!leaderboard.loading && !leaderboard.data?.length ? <p className="text-sm text-slate-500">No completed attempts yet.</p> : null}</div></Card>
+      <div className="mx-auto max-w-full space-y-6">
+        {/* Header */}
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-violet-600">
+            Dashboard
+          </p>
+          <h1 className="mt-2 text-3xl font-black">
+            Welcome back, {user?.name || 'tester'}
+          </h1>
         </div>
-        <Card><h2 className="text-xl font-black">Recent Attempts</h2><AttemptList loading={history.loading} attempts={(history.data ?? []).slice(0, 5)} /></Card>
+
+        {/* Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Stat 
+            label="Total quizzes taken" 
+            value={completed?.length ?? 0} 
+            icon={ListChecks} 
+          />
+          <Stat 
+            label="Average score" 
+            value={pct(avg)} 
+            icon={BarChart3} 
+          />
+          <Stat 
+            label="Best score" 
+            value={pct(best)} 
+            icon={Award} 
+          />
+          <Stat 
+            label="Current rank" 
+            value={rank ? `#${rank}` : 'Unranked'} 
+            icon={Trophy} 
+          />
+        </div>
+
+        {/* Main Content Split */}
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
+          {/* Recommended Quizzes */}
+          <Card>
+            <h2 className="text-xl font-black">Recommended Quizzes</h2>
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {quizzes.loading
+                ? [1, 2, 3].map((i) => <Skeleton key={i} className="h-40" />)
+                : quizzes.data?.map((quiz) => <QuizMini key={quiz.id} quiz={quiz} />)}
+            </div>
+          </Card>
+
+          {/* Leaderboard Preview */}
+          <Card>
+            <h2 className="text-xl font-black">Leaderboard Preview</h2>
+            <div className="mt-4 space-y-3">
+              {(leaderboard.data ?? []).slice(0, 5).map((entry) => (
+                <RankRow 
+                  key={entry.userId} 
+                  entry={entry} 
+                  active={entry.userId === user?.id} 
+                />
+              ))}
+              {!leaderboard.loading && !leaderboard.data?.length && (
+                <p className="text-sm text-slate-500">No completed attempts yet.</p>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        {/* Recent Attempts */}
+        <Card>
+          <h2 className="text-xl font-black">Recent Attempts</h2>
+          <AttemptList 
+            loading={history.loading} 
+            attempts={(history.data ?? []).slice(0, 5)} 
+          />
+        </Card>
       </div>
     </Shell>
   );
@@ -610,7 +676,7 @@ function ResultView({ data }: { data: AttemptReview }) {
   const answeredQuestions = data.answeredQuestions ?? totalQuestions - unansweredQuestions;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-full  space-y-6">
       <Card className="grid gap-6 p-8 md:grid-cols-[220px_1fr]">
         <div className="grid aspect-square place-items-center rounded-full border-[14px] border-violet-100 bg-white">
           <div className="text-center">
@@ -655,7 +721,7 @@ function History() {
 function AttemptList({ loading, attempts }: { loading: boolean; attempts: AttemptHistoryItem[] }) {
   if (loading) return <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-16" />)}</div>;
   if (!attempts.length) return <StateBlock title="You haven't taken any quizzes yet." message="Start a quiz to build your history and statistics." action={<Link to="/quizzes"><Button>Browse quizzes</Button></Link>} />;
-  return <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b text-slate-500"><th className="py-3">Quiz</th><th>Date</th><th>Score</th><th>Correct</th><th>Answered</th><th>Missed</th><th>Time</th><th></th></tr></thead><tbody>{attempts.map((attempt) => { const total = attempt.totalQuestions || attempt.correctAnswers + attempt.wrongAnswers; const unanswered = attempt.unansweredQuestions ?? Math.max(0, total - (attempt.answeredQuestions ?? total)); return <tr key={attempt.id} className="border-b last:border-0"><td className="py-4 font-bold">{attempt.quiz.title}</td><td>{formatDate(attempt.completedAt || attempt.startedAt)}</td><td>{pct(attempt.percentage)}</td><td>{attempt.correctAnswers} / {total}</td><td>{attempt.answeredQuestions ?? total - unanswered} / {total}</td><td>{attempt.incorrectAnswers ?? attempt.wrongAnswers} incorrect, {unanswered} unanswered</td><td>{formatDuration(attempt.startedAt, attempt.completedAt)}</td><td>{attempt.completedAt ? <Link className="font-bold text-violet-700" to={`/results/${attempt.id}`}>Review</Link> : <Badge tone="amber">In progress</Badge>}</td></tr>; })}</tbody></table></div>;
+  return <div className="overflow-x-auto"><table className="w-full text-left md:text-sm text-[5px]"><thead><tr className="border-b text-slate-500"><th className="py-3">Quiz</th><th>Date</th><th>Score</th><th>Correct</th><th>Answered</th><th>Missed</th><th>Time</th><th></th></tr></thead><tbody>{attempts.map((attempt) => { const total = attempt.totalQuestions || attempt.correctAnswers + attempt.wrongAnswers; const unanswered = attempt.unansweredQuestions ?? Math.max(0, total - (attempt.answeredQuestions ?? total)); return <tr key={attempt.id} className="border-b last:border-0"><td className="py-4 font-bold">{attempt.quiz.title}</td><td>{formatDate(attempt.completedAt || attempt.startedAt)}</td><td>{pct(attempt.percentage)}</td><td>{attempt.correctAnswers} / {total}</td><td>{attempt.answeredQuestions ?? total - unanswered} / {total}</td><td>{attempt.incorrectAnswers ?? attempt.wrongAnswers} incorrect, {unanswered} unanswered</td><td>{formatDuration(attempt.startedAt, attempt.completedAt)}</td><td>{attempt.completedAt ? <Link className="font-bold text-violet-700 " to={`/results/${attempt.id}`}>Review</Link> : <Badge tone="amber">In progress</Badge>}</td></tr>; })}</tbody></table></div>;
 }
 
 function Leaderboard() {
@@ -676,7 +742,7 @@ function Profile() {
   const avg = completed.length ? completed.reduce((sum, item) => sum + item.percentage, 0) / completed.length : 0;
   const best = completed.length ? Math.max(...completed.map((item) => item.percentage)) : 0;
   const rank = leaderboard.data?.find((entry) => entry.userId === user?.id)?.rank;
-  return <Shell><div className="mx-auto max-w-5xl space-y-6"><Card className="p-8"><div className="flex items-center gap-5"><div className="grid h-20 w-20 place-items-center rounded-3xl bg-violet-100 text-3xl font-black text-violet-700">{(user?.name || user?.email || '?').slice(0, 1).toUpperCase()}</div><div><h1 className="text-3xl font-black">{user?.name || 'Quiz user'}</h1><p className="text-slate-500">{user?.email}</p></div></div></Card><div className="grid gap-4 md:grid-cols-4"><Stat label="Total tests" value={completed.length} icon={ListChecks} /><Stat label="Average score" value={pct(avg)} icon={BarChart3} /><Stat label="Best score" value={pct(best)} icon={Award} /><Stat label="Current rank" value={rank ? `#${rank}` : 'Unranked'} icon={Trophy} /></div><Card><h2 className="text-xl font-black">Recent activity</h2><AttemptList loading={history.loading} attempts={(history.data ?? []).slice(0, 5)} /></Card></div></Shell>;
+  return <Shell><div className="mx-auto max-w-full text-xl space-y-6"><Card className="p-8"><div className="flex items-center gap-5"><div className="grid h-20 w-20 place-items-center rounded-3xl bg-violet-100 text-3xl font-black text-violet-700">{(user?.name || user?.email || '?').slice(0, 1).toUpperCase()}</div><div><h1 className="text-3xl font-black">{user?.name || 'Quiz user'}</h1><p className="text-slate-500">{user?.email}</p></div></div></Card><div className="grid gap-4 md:grid-cols-4"><Stat label="Total tests" value={completed.length} icon={ListChecks} /><Stat label="Average score" value={pct(avg)} icon={BarChart3} /><Stat label="Best score" value={pct(best)} icon={Award} /><Stat label="Current rank" value={rank ? `#${rank}` : 'Unranked'} icon={Trophy} /></div><Card><h2 className="text-xl font-black">Recent activity</h2><AttemptList loading={history.loading} attempts={(history.data ?? []).slice(0, 5)} /></Card></div></Shell>;
 }
 
 const emptyAdminQuiz: AdminQuiz = { id: 0, title: '', description: '', category: '', difficulty: 'easy', timeLimit: 20, questions: [] };
