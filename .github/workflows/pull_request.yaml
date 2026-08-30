@@ -1,0 +1,23 @@
+name: pull request
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+    - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: getting my code first
+        uses: actions/checkout@v4
+      - name: installing node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: installing dependencies
+        run: npm ci
+      - name: linting the code
+        run: npm run lint
+      - name: building the project
+        run: npm run build
